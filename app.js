@@ -1,4 +1,4 @@
-const STORAGE_KEY = "mediacenter.state.v2";
+const STORAGE_KEY = "mediacenter.state.v3";
 
 const defaultState = {
   activeHeaderId: "",
@@ -8,6 +8,7 @@ const defaultState = {
   topGroups: [],
   quickLinks: [],
   headers: [],
+  queueVideos: [],
   savedVideos: [],
 };
 
@@ -41,6 +42,7 @@ function mergeState(base, incoming) {
     topGroups: incoming.topGroups ?? structuredClone(base.topGroups),
     quickLinks: incoming.quickLinks ?? structuredClone(base.quickLinks),
     headers: incoming.headers ?? structuredClone(base.headers),
+    queueVideos: incoming.queueVideos ?? structuredClone(base.queueVideos),
     savedVideos: incoming.savedVideos ?? structuredClone(base.savedVideos),
   };
 }
@@ -187,7 +189,7 @@ function renderPageTabs() {
 function renderVideos() {
   const header = getActiveHeader();
   const page = getActivePage();
-  const videos = page?.videos ?? [];
+  const videos = header ? page?.videos ?? [] : state.queueVideos;
 
   videoGrid.innerHTML = "";
   emptyState.classList.toggle("show", videos.length === 0);
@@ -197,23 +199,15 @@ function renderVideos() {
     card.querySelector("h3").textContent = video.title;
     card.querySelector("p").textContent = "";
     card.addEventListener("click", () => {
-      if (state.deleteMode) {
+      if (header) {
         page.videos = page.videos.filter((item) => item.id !== video.id);
       } else {
-        state.savedVideos.unshift({
-          id: crypto.randomUUID(),
-          title: video.title,
-          url: video.url ?? "#",
-        });
-        page.videos = page.videos.filter((item) => item.id !== video.id);
+        state.queueVideos = state.queueVideos.filter((item) => item.id !== video.id);
       }
       persistAndRender();
     });
     videoGrid.appendChild(card);
   });
-
-  if (header && page && state.editMode && videos.length > 0) {
-  }
 }
 
 function renderSaved() {
@@ -239,6 +233,16 @@ function getActivePage() {
   const header = getActiveHeader();
   return header?.pages.find((page) => page.id === state.activePageId) ?? header?.pages[0];
 }
+
+window.addEventListener("message", (event) => {
+  if (event?.data?.source !== "mediacenter-extension" || event?.data?.type !== "sync-data") {
+    return;
+  }
+
+  state.queueVideos = loadState().queueVideos;
+  state.savedVideos = loadState().savedVideos;
+  render();
+});
 
 function escapeHtml(value) {
   return String(value)

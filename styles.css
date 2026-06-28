@@ -233,6 +233,19 @@ h2 {
   font-size: 0.9rem;
 }
 
+.saved-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.saved-meta span {
+  display: none;
+}
+
+.saved-item strong {
+  display: inline;
+}
+
 .header-pill,
 .tag {
   margin-left: auto;
@@ -292,17 +305,12 @@ h2 {
   min-width: 116px;
 }
 
-.quick-link .link-meta,
-.saved-item .saved-meta {
+.quick-link .link-meta {
   display: none;
 }
 
 .saved-item {
   justify-content: flex-start;
-}
-
-.saved-item strong {
-  display: none;
 }
 
 .quick-icon,

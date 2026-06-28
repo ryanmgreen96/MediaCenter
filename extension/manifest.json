@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "MediaCenter Video Saver",
+  "version": "1.0.0",
+  "description": "Queues right-clicked videos into MediaCenter and saves the current video for later.",
+  "permissions": ["storage", "contextMenus", "tabs"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://m.youtube.com/*",
+    "https://youtu.be/*",
+    "file:///*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Save current video for later",
+    "default_icon": {
+      "16": "icons/mediacenter.svg",
+      "32": "icons/mediacenter.svg",
+      "48": "icons/mediacenter.svg",
+      "128": "icons/mediacenter.svg"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*", "https://youtu.be/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["file:///*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
