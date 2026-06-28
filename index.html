@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediaCenter</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="panel panel-left">
+      <div class="panel-head">
+        <div>
+          <h1>Header</h1>
+        </div>
+        <button class="icon-button ghost" id="addHeaderBtn" type="button" aria-label="Add header">+</button>
+      </div>
+
+      <nav class="header-list" id="headerList" aria-label="Header list"></nav>
+
+    </aside>
+
+    <header class="top-bar">
+      <div class="tab-stack" id="topTabStack"></div>
+
+      <div class="top-links" id="topLinks"></div>
+
+      <button class="icon-button ghost" id="addQuickLinkBtn" type="button" aria-label="Add quick link">+</button>
+    </header>
+
+    <main class="viewer">
+      <section class="viewer-toolbar">
+        <div id="activeHeaderTitle" aria-hidden="true"></div>
+
+        <div class="toolbar-actions">
+          <button class="pill-button" id="editModeBtn" type="button">Edit mode</button>
+          <button class="pill-button danger" id="deleteModeBtn" type="button">Delete mode</button>
+          <button class="pill-button" id="addTabBtn" type="button">+ Page tab</button>
+        </div>
+      </section>
+
+      <section class="page-tabs" id="pageTabs" aria-label="Viewer tabs"></section>
+
+      <section class="video-grid" id="videoGrid" aria-label="Video queue"></section>
+
+      <section class="empty-state" id="emptyState">
+      </section>
+    </main>
+
+    <aside class="panel panel-right">
+      <div class="panel-head">
+        <div>
+          <h1>For later</h1>
+        </div>
+      </div>
+
+      <div class="saved-list" id="savedList"></div>
+    </aside>
+  </div>
+
+  <template id="videoCardTemplate">
+    <article class="video-card">
+      <div class="thumb"></div>
+      <h3></h3>
+      <p></p>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
