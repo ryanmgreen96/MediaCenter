@@ -1,4 +1,4 @@
-const APP_STORAGE_KEY = "mediacenter.state.v3";
+const STORAGE_KEY = "mediacenter.state.v4";
 const STORAGE_KEYS = {
   queueVideos: "mediacenter.queueVideos",
   savedVideos: "mediacenter.savedVideos",
@@ -10,6 +10,7 @@ if (isYouTubePage()) {
 
 if (isMediaCenterPage()) {
   syncStorageToPage();
+
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== "local") {
       return;
@@ -120,10 +121,10 @@ async function syncStorageToPage() {
   const result = await chrome.storage.local.get([STORAGE_KEYS.queueVideos, STORAGE_KEYS.savedVideos]);
   const queueVideos = Array.isArray(result[STORAGE_KEYS.queueVideos]) ? result[STORAGE_KEYS.queueVideos] : [];
   const savedVideos = Array.isArray(result[STORAGE_KEYS.savedVideos]) ? result[STORAGE_KEYS.savedVideos] : [];
-  const current = readPageState();
 
+  const current = readPageState();
   localStorage.setItem(
-    APP_STORAGE_KEY,
+    STORAGE_KEY,
     JSON.stringify({
       ...current,
       queueVideos,
@@ -136,7 +137,7 @@ async function syncStorageToPage() {
 
 function readPageState() {
   try {
-    return JSON.parse(localStorage.getItem(APP_STORAGE_KEY) || "{}");
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   } catch {
     return {};
   }

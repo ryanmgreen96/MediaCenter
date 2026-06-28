@@ -1,4 +1,4 @@
-const STORAGE_KEY = "mediacenter.state.v3";
+const STORAGE_KEY = "mediacenter.state.v4";
 
 const defaultState = {
   activeHeaderId: "",
@@ -12,7 +12,7 @@ const defaultState = {
   savedVideos: [],
 };
 
-const state = loadState();
+let state = loadState();
 
 const headerList = document.getElementById("headerList");
 const topTabStack = document.getElementById("topTabStack");
@@ -25,6 +25,15 @@ const activeHeaderTitle = document.getElementById("activeHeaderTitle");
 
 bindActions();
 render();
+
+window.addEventListener("message", (event) => {
+  if (event?.data?.source !== "mediacenter-extension" || event?.data?.type !== "sync-data") {
+    return;
+  }
+
+  state = loadState();
+  render();
+});
 
 function loadState() {
   try {
@@ -55,14 +64,17 @@ function bindActions() {
   document.getElementById("addHeaderBtn").addEventListener("click", () => {
     const title = prompt("Header title?");
     if (!title) return;
-    state.headers.unshift({
+
+    const header = {
       id: crypto.randomUUID(),
       title,
       countLabel: "New header",
       pages: [{ id: crypto.randomUUID(), title: "Page 1", videos: [] }],
-    });
-    state.activeHeaderId = state.headers[0].id;
-    state.activePageId = state.headers[0].pages[0].id;
+    };
+
+    state.headers.unshift(header);
+    state.activeHeaderId = header.id;
+    state.activePageId = header.pages[0].id;
     persistAndRender();
   });
 
@@ -70,20 +82,24 @@ function bindActions() {
     const title = prompt("Quick link title?");
     const url = prompt("Quick link URL?");
     if (!title || !url) return;
+
     state.quickLinks.unshift({
       id: crypto.randomUUID(),
       icon: title.slice(0, 1).toUpperCase(),
       title,
       url,
     });
+
     persistAndRender();
   });
 
   document.getElementById("addTabBtn").addEventListener("click", () => {
     const header = getActiveHeader();
     if (!header) return;
+
     const title = prompt("Page tab title?");
     if (!title) return;
+
     const page = { id: crypto.randomUUID(), title, videos: [] };
     header.pages.push(page);
     state.activePageId = page.id;
@@ -101,7 +117,6 @@ function bindActions() {
     state.editMode = false;
     persistAndRender();
   });
-
 }
 
 function persistAndRender() {
@@ -120,6 +135,7 @@ function render() {
 
 function renderHeaders() {
   headerList.innerHTML = "";
+
   state.headers.forEach((header) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -143,6 +159,7 @@ function renderHeaders() {
 
 function renderTopTabs() {
   topTabStack.innerHTML = "";
+
   state.topGroups.forEach((group) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -154,6 +171,7 @@ function renderTopTabs() {
 
 function renderQuickLinks() {
   topLinks.innerHTML = "";
+
   state.quickLinks.forEach((link) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -197,7 +215,14 @@ function renderVideos() {
   videos.forEach((video) => {
     const card = document.getElementById("videoCardTemplate").content.firstElementChild.cloneNode(true);
     card.querySelector("h3").textContent = video.title;
-    card.querySelector("p").textContent = "";
+
+    const thumb = card.querySelector(".thumb");
+    if (thumb && video.thumbnail) {
+      thumb.style.backgroundImage = `url("${video.thumbnail}")`;
+      thumb.style.backgroundSize = "cover";
+      thumb.style.backgroundPosition = "center";
+    }
+
     card.addEventListener("click", () => {
       if (header) {
         page.videos = page.videos.filter((item) => item.id !== video.id);
@@ -206,12 +231,14 @@ function renderVideos() {
       }
       persistAndRender();
     });
+
     videoGrid.appendChild(card);
   });
 }
 
 function renderSaved() {
   savedList.innerHTML = "";
+
   state.savedVideos.forEach((saved) => {
     const item = document.createElement("button");
     item.type = "button";
@@ -234,16 +261,6 @@ function getActivePage() {
   return header?.pages.find((page) => page.id === state.activePageId) ?? header?.pages[0];
 }
 
-window.addEventListener("message", (event) => {
-  if (event?.data?.source !== "mediacenter-extension" || event?.data?.type !== "sync-data") {
-    return;
-  }
-
-  state.queueVideos = loadState().queueVideos;
-  state.savedVideos = loadState().savedVideos;
-  render();
-});
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -251,10 +268,4 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
-}
-
-function shorten(value) {
-  const text = String(value ?? "");
-  if (text.length <= 32) return text;
-  return `${text.slice(0, 29)}...`;
 }

@@ -27,9 +27,8 @@ The unpacked browser extension lives in [extension/](extension/). It adds:
 
 - A right-click `Que` menu item for YouTube links.
 - A toolbar button that saves the current YouTube video for later.
-- A storage bridge that syncs extension data back into the MediaCenter page.
 
-Load that folder as an unpacked extension in Edge or Chrome, and enable file URL access if you want the extension to sync directly with the local MediaCenter page.
+Load that folder as an unpacked extension in Edge or Chrome. The MediaCenter page is only a viewer when you want it open.
 
 Typical first push flow:
 

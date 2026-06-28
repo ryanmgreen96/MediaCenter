@@ -6,11 +6,13 @@ const STORAGE_KEYS = {
 const QUEUE_MENU_ID = "mediacenter-queue-video";
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: QUEUE_MENU_ID,
-    title: "Que",
-    contexts: ["link"],
-    documentUrlPatterns: ["https://www.youtube.com/*", "https://m.youtube.com/*", "https://youtu.be/*"],
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: QUEUE_MENU_ID,
+      title: "Que",
+      contexts: ["link"],
+      documentUrlPatterns: ["https://www.youtube.com/*", "https://m.youtube.com/*", "https://youtu.be/*"],
+    });
   });
 });
 
@@ -25,7 +27,6 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 
   await addSavedVideo(video);
-  await notifyPageSync(tab.id);
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -39,7 +40,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   await addQueueVideo(video);
-  await notifyPageSync(tab.id);
 });
 
 async function addQueueVideo(video) {
@@ -87,6 +87,3 @@ function requestVideo(tabId, messageType, extra = {}) {
   });
 }
 
-function notifyPageSync(tabId) {
-  return chrome.tabs.sendMessage(tabId, { type: "mediacenter-sync-storage" }).catch(() => {});
-}
